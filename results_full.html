@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>نتائج البحث - Alislamiah</title>
+    <link rel="icon" href="icon.png" type="image/png">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: #0a1628;
+            color: #e8f0fe;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ========== الشريط العلوي الثابت ========== */
+        #top-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(8, 20, 42, 0.97);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(60, 120, 200, 0.25);
+            padding: 10px 14px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 4px 20px rgba(0, 10, 30, 0.5);
+        }
+
+        .back-btn, .home-btn {
+            background: none;
+            border: none;
+            color: #8bb8e8;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 6px 8px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s, color 0.2s;
+            flex-shrink: 0;
+        }
+
+        .back-btn:active, .home-btn:active {
+            background: rgba(40, 90, 160, 0.3);
+            color: #fff;
+        }
+
+        .logo {
+            font-weight: 700;
+            font-size: 15px;
+            color: #5eb0ff;
+            white-space: nowrap;
+            display: none;
+        }
+
+        @media (min-width: 500px) {
+            .logo { display: block; }
+        }
+
+        .search-form {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            background: rgba(15, 35, 65, 0.9);
+            border: 1px solid rgba(80, 150, 230, 0.3);
+            border-radius: 28px;
+            padding: 8px 14px;
+            gap: 8px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            max-width: 700px;
+        }
+
+        .search-form:focus-within {
+            border-color: rgba(100, 180, 255, 0.6);
+            box-shadow: 0 0 0 2px rgba(80, 150, 230, 0.2);
+        }
+
+        .search-form input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #e8f4ff;
+            font-size: 15px;
+            direction: rtl;
+            min-width: 0;
+        }
+
+        .search-form input::placeholder {
+            color: #6a8fb8;
+        }
+
+        .search-btn {
+            background: none;
+            border: none;
+            color: #5eb0ff;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 2px;
+            display: flex;
+            align-items: center;
+        }
+
+        /* ========== المحتوى ========== */
+        #main-content {
+            margin-top: 68px;
+            padding: 12px 14px 30px;
+            max-width: 720px;
+            margin-left: auto;
+            margin-right: auto;
+            transition: opacity 0.2s;
+        }
+
+        #main-content.hidden {
+            display: none;
+        }
+
+        /* صندوق الرد الذكي */
+        .ai-box {
+            background: linear-gradient(145deg, rgba(8, 100, 200, 0.15), rgba(8, 60, 140, 0.08));
+            border: 1px solid rgba(80, 160, 255, 0.25);
+            border-radius: 16px;
+            padding: 16px 18px;
+            margin-bottom: 18px;
+            display: none;
+        }
+
+        .ai-box.show {
+            display: block;
+        }
+
+        .ai-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #5eb0ff;
+            font-size: 14px;
+        }
+
+        .ai-badge {
+            background: #087fff;
+            color: #fff;
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+
+        .ai-content {
+            color: #c8dcf0;
+            font-size: 14px;
+            line-height: 1.75;
+        }
+
+        /* بطاقات النتائج */
+        .result-card {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            background: rgba(12, 28, 52, 0.7);
+            border: 1px solid rgba(50, 100, 180, 0.18);
+            border-radius: 14px;
+            padding: 14px 16px;
+            margin-bottom: 10px;
+            text-decoration: none;
+            color: inherit;
+            transition: background 0.2s, border-color 0.2s, transform 0.15s;
+            cursor: pointer;
+        }
+
+        .result-card:hover, .result-card:active {
+            background: rgba(18, 40, 75, 0.9);
+            border-color: rgba(80, 150, 230, 0.4);
+        }
+
+        .favicon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.06);
+            object-fit: contain;
+            flex-shrink: 0;
+            padding: 4px;
+        }
+
+        .result-body {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .result-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+            flex-wrap: wrap;
+        }
+
+        .result-type {
+            font-size: 11px;
+            background: rgba(30, 80, 160, 0.4);
+            color: #6ec0ff;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+
+        .result-url {
+            font-size: 12px;
+            color: #6a8fb8;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 220px;
+        }
+
+        .result-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #8ec8ff;
+            margin-bottom: 4px;
+            line-height: 1.35;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .result-desc {
+            font-size: 13px;
+            color: #9bb4d0;
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* فيديو */
+        .video-card {
+            display: flex;
+            gap: 12px;
+        }
+
+        .video-thumb {
+            position: relative;
+            width: 140px;
+            height: 80px;
+            flex-shrink: 0;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #000;
+        }
+
+        .video-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .video-duration {
+            position: absolute;
+            bottom: 4px;
+            left: 4px;
+            background: rgba(0,0,0,0.8);
+            color: #fff;
+            font-size: 11px;
+            padding: 1px 5px;
+            border-radius: 3px;
+        }
+
+        .video-play {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.55);
+            color: #fff;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        /* لا نتائج */
+        .no-results {
+            text-align: center;
+            padding: 50px 20px;
+            color: #6a8fb8;
+        }
+
+        .no-results .icon {
+            font-size: 42px;
+            margin-bottom: 12px;
+            opacity: 0.5;
+        }
+
+        /* ========== إطار الموقع ========== */
+        #site-frame-wrap {
+            display: none;
+            position: fixed;
+            top: 60px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 900;
+            background: #0a1628;
+        }
+
+        #site-frame-wrap.active {
+            display: block;
+        }
+
+        #site-frame {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: #fff;
+        }
+
+        .frame-loading {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #0a1628;
+            color: #6a8fb8;
+            font-size: 15px;
+            z-index: 1;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- الشريط العلوي الثابت -->
+    <header id="top-bar">
+        <button class="back-btn" onclick="goBack()" title="رجوع">←</button>
+        <button class="home-btn" onclick="goHome()" title="الرئيسية">🏠</button>
+        <span class="logo">Alislamiah</span>
+        <form class="search-form" onsubmit="doSearch(event)">
+            <input type="text" id="searchInput" placeholder="ابحث في الإسلامية..." autocomplete="off">
+            <button type="submit" class="search-btn">🔍</button>
+        </form>
+    </header>
+
+    <!-- قائمة النتائج -->
+    <main id="main-content">
+        <div id="aiBox" class="ai-box">
+            <div class="ai-header">
+                <span>✦</span> رد الذكاء الاصطناعي
+                <span class="ai-badge">Alislamiah AI</span>
+            </div>
+            <div id="aiText" class="ai-content"></div>
+        </div>
+        <div id="resultsList"></div>
+    </main>
+
+    <!-- إطار الموقع (يبقى الشريط العلوي ظاهراً) -->
+    <div id="site-frame-wrap">
+        <div class="frame-loading" id="frameLoading">جاري التحميل...</div>
+        <iframe id="site-frame" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox"></iframe>
+    </div>
+
+    <script>
+        // ===================== قاعدة البيانات =====================
+        const library = [
+            { title: "الإسلامية نت", type: "منصة", url: "https://mohamedmadoui5195.github.io/Alislamiah-_net/", desc: "المنصة الرسمية لشبكة الإسلامية " },
+            { title: "ملخص شامل لدروس الفيزياء الفصل الأول سنة أولى متوسط", type: "video", url: "https://youtu.be/bWjbud4jN6M?si=S4zFHsr0z7lmB8dK", desc: "أقوى ملخص لدروس الفصل الأول لمادة الفيزياء للسنة الأولى متوسط", thumbnail: "https://img.youtube.com/vi/bWjbud4jN6M/hqdefault.jpg", duration: "10:07" },
+            { title: "متجر الإسلامية", type: "منصة", url: "https://mohamedmadoui5195.github.io/Alislamiah-_net.-store/", desc: "متجر تطبيقات الإسلامية " },
+            { title: "قناة الشيخ أحمد النفيس", type: "منصة", url: "https://youtube.com/@ahmad_alnufais?si=_u9f-SVVxpAOmy0D", desc: "القناة الرسمية للشيخ أحمد النفيس تلاوات عطرة وخاشعة." },
+            { title: "فضاء الأولياء", type: "منصة", url: "https://awlya.education.dz/", desc: "فضاء أولياء التلاميذ للتعرف على نتائج ومستويات الأبناء الدراسية في الجزائر." },
+            { title: "قناة الشيخ فركوس", type: "منصة", url: "https://youtube.com/channel/UC1UuPsSzEOhxUamwLt86IiQ?si=tUGE9H6rfKrbD3F3", desc: "القناة الرسمية لفضيلة الشيخ الدكتور محمد علي فركوس للخطب والدروس العلمية." },
+            { title: "منصة قطاع الحج والعمرة - نسك", type: "منصة", url: "https://www.nusuk.sa", desc: "المنصة الرسمية للقادمين لتأدية العمرة والزيارة لتخطيط وحجز الرحلة بالكامل." },
+            { title: "منصة ضيوف الرحمن", type: "منصة", url: "https://www.hajj.gov.sa", desc: "البوابة الرسمية لخدمات الحجاج والمعتمرين وتقديم التصاريح والتعليمات." },
+            { title: "منصة إيجار", type: "منصة", url: "https://www.ejar.sa", desc: "شبكة إلكترونية لتنظيم قطاع الإيجار العقاري وحفظ حقوق المؤجر والمستأجر." },
+            { title: "منصة وافي", type: "منصة", url: "https://wafi.housing.gov.sa", desc: "منصة ترخيص البيع والتأجير على الخريطة لمشاريع التطوير العقاري." },
+            { title: "منصة سكني", type: "منصة", url: "https://sakani.sa", desc: "منصة حكومية لتقديم الحلول السكنية والتمويلية المدعومة للمواطنين." },
+            { title: "منصة وطني", type: "منصة", url: "https://watani.gov.sa", desc: "منصة لتوحيد قياس رضا المستفيدين عن الخدمات الحكومية والبلدية." },
+            { title: "منصة سلامة", type: "منصة", url: "https://salama.gov.sa", desc: "منصة إصدار تراخيص السلامة واشتراطات الدفاع المدني للمنشآت." },
+            { title: "منصة التراخيص الصناعية", type: "منصة", url: "https://www.modon.gov.sa", desc: "منصة هيئة المدن الصناعية لتوفير الأراضي والخدمات اللوجستية للصناعة." },
+            { title: "منصة سابر", type: "منصة", url: "https://saber.sa", desc: "منصة إلكترونية لتقييم المطابقة والتحقق من سلامة المنتجات الاستهلاكية." },
+            { title: "منصة مرسول", type: "منصة", url: "https://www.mrsool.com", desc: "منصة توصيل طلبات ومنتجات لكل الاحتياجات عبر تطبيق ذكي ومندوبين معتمدين." },
+            { title: "منصة إعتماد", type: "منصة", url: "https://etimad.sa", desc: "المنصة الموحدة للمشتريات الحكومية والخدمات المالية في المملكة العربية السعودية." },
+            { title: "منصة أبشر", type: "منصة", url: "https://www.absher.sa", desc: "المنصة الإلكترونية الرسمية للخدمات الحكومية للأفراد والقطاع التجاري في السعودية." },
+            { title: "منصة مقيم", type: "منصة", url: "https://www.qeem.com.sa", desc: "منصة إلكترونية لتقييم المنشآت الاقتصادية والأصول العقارية بمعايير مهنية." },
+            { title: "منصة قوى", type: "منصة", url: "https://qiwa.sa", desc: "منصة منظومة العمل لربط المنشآت والعاملين وإدارة العقود والخدمات العمالية." },
+            { title: "منصة مساند", type: "منصة", url: "https://www.musaned.com.sa", desc: "منصة استقدام العمالة المنزلية وتنظيم العلاقة التعاقدية بين الأطراف." },
+            { title: "منصة ناجز", type: "منصة", url: "https://najiz.sa", desc: "بوابة الخدمات العدلية والقضائية الإلكترونية لوزارة العدل السعودية." },
+            { title: "منصة بلدي", type: "منصة", url: "https://balady.gov.sa", desc: "منصة خدمات البلديات وإصدار التراخيص التجارية والإنشائية." },
+            { title: "منصة صحتي", type: "منصة", url: "https://www.sehaty.sa", desc: "التطبيق والمنصة الوطنية للخدمات الصحية ومواعيد المستشفيات والتقارير الطبية." },
+            { title: "منصة مدرسه", type: "منصة", url: "https://schools.madrasati.sa", desc: "منصة التعليم عن بعد والمنظومة التعليمية الرقمية لوزارة التعليم." },
+            { title: "منصة توكلنا", type: "منصة", url: "https://tawakkalna.sdaia.gov.sa", desc: "المنصة الوطنية الرسمية للخدمات الرقمية وتصاريح التنقل والخدمات الشخصية." },
+            { title: "منصة إحسان", type: "منصة", url: "https://ehsan.sa", desc: "المنصة الوطنية للعمل الخيري لتوحيد وتسهيل جهود التبرعات المجتمعية." },
+            { title: "منصة ذكاء", type: "منصة", url: "https://www.sdaia.gov.sa", desc: "المنصة الوطنية للبيانات والذكاء الاصطناعي لتطوير التقنيات المتقدمة." },
+            { title: "منصة مرسال", type: "منصة", url: "https://www.mersal.sa", desc: "منصة البريد والاتصالات الرقمية لإدارة المراسلات الرسمية." },
+            { title: "منصة سهم", type: "منصة", url: "https://www.alahli.com", desc: "منصة الاستثمار المالي وتداول الأسهم المصرفية الرقمية." },
+            { title: "منصة رقيب", type: "منصة", url: "https://www.NCA.gov.sa", desc: "منصة الهيئة الوطنية للأمن السيبراني لرصد التهديدات وحماية الأنظمة." },
+            { title: "منصة كفو", type: "منصة", url: "https://www.kafu.sa", desc: "منصة تطوعية لربط الكفاءات بالفرص المجتمعية والخدمية." },
+            { title: "منصة ثقة", type: "منصة", url: "https://www.thiqah.sa", desc: "منصة تطوير الأعمال والخدمات الرقمية للمشاريع التجارية والتقنية." },
+            { title: "منصة عقار", type: "منصة", url: "https://www.aqar.sa", desc: "منصة إلكترونية شاملة للبحث عن العقارات للبيع أو الإيجار في المملكة." },
+            { title: "منصة مستعمل", type: "منصة", url: "https://www.mstaml.com", desc: "منصة بيع وشراء السلع المستجدة والمستعملة بين الأفراد." },
+            { title: "منصة حراج", type: "منصة", url: "https://www.haraj.com.sa", desc: "منصة الإعلانات الكبرى للسيارات والعقارات والسلع المتنوعة." },
+            { title: "منصة المركز الوطني للرقابة على الالتزام البيئي", type: "منصة", url: "https://www.ncec.gov.sa", desc: "منصة لرصد الالتزام البيئي والتحقق من حماية الأوساط البيئية للمنشآت الصناعية." },
+            { title: "منصة هيئة تنمية المهندسين", type: "منصة", url: "https://www.saudieng.sa", desc: "منصة الهيئة السعودية للمهندسين لتسجيل الاعتمادات المهنية وخدمات العضوية." },
+            { title: "منصة المجلس الصحي السعودي", type: "منصة", url: "https://www.shc.gov.sa", desc: "منصة لتنسيق الخدمات الصحية وتبادل البيانات الطبية بين القطاعات المختلفة." },
+            { title: "منصة الهيئة العامة للمساحة والمعلومات الجيومكانية", type: "منصة", url: "https://www.gagi.gov.sa", desc: "منصة لتوفير البيانات الجيومكانية والخرائط الرقمية الرسمية." },
+            { title: "منصة الهيئة العامة للمنشآت الصغيرة والمتوسطة - ريادة", type: "منصة", url: "https://www.riyadah.com.sa", desc: "منصة لدعم وتدريب رواد ورائدات الأعمال ومساعدة تمويل المشاريع الناشئة." },
+            { title: "منصة الصندوق الصناعي السعودي", type: "منصة", url: "https://www.sidf.gov.sa", desc: "منصة صندوق التنمية الصناعية لتقديم القروض والخدمات الاستثمارية الصناعية." },
+            { title: "منصة بنك التنمية الاجتماعية", type: "منصة", url: "https://www.sdb.gov.sa", desc: "منصة التمويل الميسر لدعم الأسر المنتجة والمشاريع الناشئة والتمويل الاجتماعي." },
+            { title: "منصة وزارة الرياضة - تواصل", type: "منصة", url: "https://www.mos.gov.sa", desc: "منصة تسجيل الأندية الرياضية ومتابعة التراخيص والفعاليات الرياضية." },
+            { title: "منصة وزارة الثقافة - ترخيص", type: "منصة", url: "https://www.moc.gov.sa", desc: "منصة إصدار التراخيص الثقافية والفنية للأنشطة والفعاليات الإبداعية." },
+            { title: "منصة الهيئة العامة للترفيه", type: "منصة", url: "https://www.gea.gov.sa", desc: "منصة إصدار تراخيص إقامة الفعاليات الترفيهية والعروض الفنية." },
+            { title: "منصة المركز الوطني لإدارة الدين", type: "منصة", url: "https://www.ndmc.gov.sa", desc: "منصة إدارة وتأمين احتياجات المملكة التمويلية من الأسواق المحلية والدولية." },
+            { title: "منصة المركز الوطني للتخصيص", type: "منصة", url: "https://www.ncp.gov.sa", desc: "منصة طرح ومتابعة مشاريع التخصيص والشراكة بين القطاعين الحكومي والخاص." },
+            { title: "منصة مركز الإسناد والتصفية - إنفاذ", type: "منصة", url: "https://etimad.sa", desc: "منصة الإشراف على أعمال التصفية والبيع القضائي للأصول والتركات." },
+            { title: "منصة هيئة كفاءة الإنفاق والمشروعات الحكومية", type: "منصة", url: "https://www.expro.gov.sa", desc: "منصة تعزيز كفاءة الإنفاق الحكومي وتطوير إدارة المشاريع والأصول." },
+            { title: "منصة الهيئة السعودية للمواصفات والمقاييس والجودة", type: "منصة", url: "https://www.saso.gov.sa", desc: "منصة إصدار المواصفات القياسية واللوائح الفنية وعلامات الجودة." },
+            { title: "منصة الهيئة العامة للمنافسة", type: "منصة", url: "https://www.gac.gov.sa", desc: "منصة حماية المنافسة العادلة ومكافحة الممارسات الاحتكارية في الأسواق." },
+            { title: "منصة هيئة الزكاة والضريبة والجمارك - زاتكا", type: "منصة", url: "https://zatca.gov.sa", desc: "منصة إدارة الخدمات الزكوية والضريبية والجمركية وإصدار الفوترة الإلكترونية." },
+            { title: "منصة البنك المركزي السعودي - ساما", type: "منصة", url: "https://www.sama.gov.sa", desc: "منصة الرقابة على القطاع المصرفي وقطاع التمويل والتأمين في المملكة." },
+            { title: "منصة السوق المالية السعودية - تداول", type: "منصة", url: "https://www.tadawul.com.sa", desc: "منصة تداول الأوراق المالية والأسهم وصناديق الاستثمار المرخصة." },
+            { title: "منصة شركة مركز إيداع الأوراق المالية - إيداع", type: "منصة", url: "https://www.edaa.com.sa", desc: "منصة حفظ وتسجيل ونقل ملكية الأوراق المالية المقيدة في السوق." },
+            { title: "منصة شركة مركز المقاصة الأوراق المالية - مقاصة", type: "منصة", url: "https://www.muqassa.com", desc: "منصة تصفية وتسوية معاملات الأوراق المالية وإدارة المخاطر المرتبطة بها." },
+            { title: "منصة هيئة السوق المالية", type: "منصة", url: "https://cma.org.sa", desc: "منصة تنظيم وحماية وتطوير السوق المالية وحماية المستثمرين من الممارسات غير العادلة." },
+            { title: "منصة الهيئة السعودية للبيانات والذكاء الاصطناعي - سدايا", type: "منصة", url: "https://sdaia.gov.sa", desc: "المنصة الوطنية المسؤولة عن رسم الستراتيجيات الوطنية للبيانات والذكاء الاصطناعي." },
+            { title: "منصة المركز الوطني للأمن السيبراني", type: "منصة", url: "https://nca.gov.sa", desc: "منصة تعزيز حماية الشبكات وأنظمة التقنية والبيانات الحساسة بالدولة." },
+            { title: "منصة وزارة الموارد البشرية والتنمية الاجتماعية", type: "منصة", url: "https://hrsd.gov.sa", desc: "منصة تنظيم سوق العمل وتطوير سياسات التنمية الاجتماعية ورعاية الفئات المستهدفة." },
+            { title: "منصة وزارة الداخلية", type: "منصة", url: "https://moi.gov.sa", desc: "المنصة الرئيسية للخدمات الأمنية والمرورية والأحوال المدنية." },
+            { title: "منصة وزارة الخارجية", type: "منصة", url: "https://mofa.gov.sa", desc: "منصة تقديم الخدمات القنصلية وتصديق المستندات وإصدار تأشيرات الدخول." },
+            { title: "منصة وزارة الصحة", type: "منصة", url: "https://moh.gov.sa", desc: "البوابة الرسمية للقطاع الصحي ومتابعة المستجدات والتوجيهات الطبية." },
+            { title: "منصة وزارة التعليم", type: "منصة", url: "https://moe.gov.sa", desc: "المنصة الإستراتيجية لتطوير العملية التعليمية والخطط الدراسية للمراحل المختلفة." },
+            { title: "منصة وزارة العدل", type: "منصة", url: "https://moj.gov.sa", desc: "المنصة القضائية والعدلية لإدارة المحاكم والمستندات القانونية والموثقين." },
+            { title: "منصة وزارة الشؤون الإسلامية والدعوة والإرشاد", type: "منصة", url: "https://www.moia.gov.sa", desc: "منصة العناية بالمساجد، القرآن الكريم، وتنظيم أعمال الدعوة ومتابعة شؤون الحجاج والمعتمرين." },
+            { title: "منصة وزارة النقل والخدمات اللوجستية", type: "منصة", url: "https://www.mot.gov.sa", desc: "منصة تخطيط وتنظيم شبكات الطرق، النقل البري والبحري، وتطوير القطاع اللوجستي." },
+            { title: "منصة وزارة الحج والعمرة", type: "منصة", url: "https://www.haj.gov.sa", desc: "منصة إدارة وتخطيط شؤون ضيوف الرحمن وتطوير الخدمات المقدمة في الحرمين الشريفين." },
+            { title: "منصة وزارة الإعلام", type: "منصة", url: "https://www.media.gov.sa", desc: "منصة تنظيم الأنشطة الإعلامية، إصدار تراخيص المطبوعات، ومتابعة المحتوى المرئي والمسموع." },
+            { title: "منصة وزارة الاقتصاد والتخطيط", type: "منصة", url: "https://www.mep.gov.sa", desc: "منصة إعداد الخطط الاستراتيجية والمؤشرات الاقتصادية ودعم سياسات التنمية المستدامة." },
+            { title: "منصة وزارة الاستثمار", type: "منصة", url: "https://misa.gov.sa", desc: "منصة ترويج الاستثمارات المحلية والأجنبية وتقديم التسهيلات للمستثمرين في المملكة." },
+            { title: "منصة وزارة التجارة", type: "منصة", url: "https://mc.gov.sa", desc: "منصة حماية حقوق المستهلك، تنظيم التجارة الداخلية، وإصدار اللوائح التجارية." },
+            { title: "منصة وزارة السياحة", type: "منصة", url: "https://mt.gov.sa", desc: "منصة تطوير الوجهات السياحية، ترخيص الأنشطة السياحية، والارتقاء بقطاع الضيافة." },
+            { title: "منصة وزارة البيئة والمياه والزراعة", type: "منصة", url: "https://mewa.gov.sa", desc: "منصة تنمية الغطاء النباتي، حماية الثروة الحيوانية والسمكية، وإدارة الموارد المائية." },
+            { title: "منصة المركز الوطني لتنمية الغطاء النباتي ومكافحة التصحر", type: "منصة", url: "https://www.ncvc.gov.sa", desc: "منصة لإدارة وتنمية الغابات والمراعي ومكافحة زحف الرمال وحماية البيئة النباتية." },
+            { title: "منصة المركز الوطني لتنمية الحياة الفطرية", type: "منصة", url: "https://www.ncw.gov.sa", desc: "منصة حماية وحفظ التنوع البيولوجي وإكثار الكائنات الفطرية المهددة بالانقراض." },
+            { title: "منصة المركز الوطني لإدارة النفايات - ميفك", type: "منصة", url: "https://www.mwan.gov.sa", desc: "منصة تنظيم أنشطة إدارة النفايات والرقابة على عمليات التدوير والتخلص الآمن." },
+            { title: "منصة هيئة تنمية البحث والتطوير والابتكار", type: "منصة", url: "https://www.rdia.gov.sa", desc: "منصة دعم وتمويل مشاريع البحث العلمي والابتكار التقني والصحي والبيئي." },
+            { title: "منصة مدينة الملك عبد العزيز للعلوم والتقنية - كيتس", type: "منصة", url: "https://www.kacst.edu.sa", desc: "منصة الأبحاث العلمية المتقدمة ونقل وتوطين التقنيات الحديثة ودعم الابتكار." },
+            { title: "موقع الآفاق للتصميم", type: "منصة", url: "https://www.alafaq.net", desc: "منصة عربية لتقديم خدمات التصميم الرقمي، الجرافيك، وموارد المطورين." },
+            { title: "أكاديمية عمروعلي", type: "منصة", url: "https://academy.amroali.com", desc: "منصة لتعلم البرمجة وتطوير الويب باللغة العربية بأسلوب عملي مبسط." },
+            { title: "منصة روح السعودية", type: "منصة", url: "https://www.visitsaudi.com", desc: "المنصة الرسمية لاكتشاف الوجهات السياحية والفعاليات والأنشطة الترفيهية." },
+            { title: "منصة إحكام", type: "منصة", url: "https://ehkaam.sa", desc: "الأمانة العامة للجان الدوائر العقارية لتسجيل وتملك العقارات." },
+            { title: "منصة ذكاء", type: "منصة", url: "https://www.thakaa.sa", desc: "منصة وطنية متخصصة في نشر ونقل معرفة الذكاء الاصطناعي وتقنيات المستقبل." },
+            { title: "سوق مساق", type: "منصة", url: "https://www.misaq.org", desc: "منصة رقمية لتقديم الدورات التدريبية المعتمدة وتطوير المهارات القيادية والإدارية." },
+            { title: "منصة إثراء", type: "منصة", url: "https://www.ithra.com", desc: "مركز الملك عبد العزيز الثقافي العالمي لتقديم المحتوى المعرفي، الفني، والعلمي." },
+            { title: "أكاديمية طويق", type: "منصة", url: "https://tuwaiq.edu.sa", desc: "منصة رائدة لتطوير الكوادر الوطنية والعربية في المجالات التقنية المتقدمة والبرمجة." },
+            { title: "منصة تراضي", type: "منصة", url: "https://taradi.moj.gov.sa", desc: "منصة إلكترونية لتقديم خدمات الصلح وتسوية النزاعات بالطرق الودية والرسمية." },
+            { title: "منصة قطار الحرمين السريع", type: "منصة", url: "https://sar.hhr.sa", desc: "المنصة الرسمية لحجز تذاكر ومواعيد رحلات قطار الحرمين السريع." },
+            { title: "منصة مطار الملك عبد العزيز", type: "منصة", url: "https://www.jeddahairport.com", desc: "منصة تتبع رحلات الطيران ومتابعة حركة المغادرة والوصول والخدمات." },
+            { title: "منصة الهيئة العامة للغذاء والدواء", type: "منصة", url: "https://www.sfda.gov.sa", desc: "منصة الاستعلام عن المنتجات والأدوية المسجلة والتحذيرات الرقابية." },
+            { title: "منصة البريد السعودي - سبيل", type: "منصة", url: "https://www.splonline.com.sa", desc: "منصة لإدارة الخدمات البريدية اللوجستية وتتبع الشحنات والعناوين الوطنية." },
+            { title: "منصة تونس الأعمال", type: "منصة", url: "https://www.tunisebusiness.tn", desc: "منصة رقمية لدعم الشركات وتسهيل الإجراءات الإدارية والاقتصادية في تونس." },
+            { title: "بوابة الحكومة الإلكترونية المصرية", type: "منصة", url: "https://www.egypt.gov.eg", desc: "منصة مركزية شاملة للخدمات الحكومية والمعلومات العامة للمواطنين في مصر." },
+            { title: "منصة مصر الرقمية", type: "منصة", url: "https://digital.gov.eg", desc: "بوابة تقديم المعاملات الحكومية الرقمية والخدمات المدنية للمواطنين." },
+            { title: "بوابة الخدمات الإلكترونية المغربية", type: "منصة", url: "https://www.service-public.ma", desc: "المرجع الرسمي للإدارات والخدمات العمومية والإلكترونية في المغرب." },
+            { title: "بوابة حكومة دولة الإمارات", type: "منصة", url: "https://u.ae", desc: "الدليل الشامل للخدمات الحكومية والمعلومات الاتحادية في دولة الإمارات." },
+            { title: "منصة قطر للخدمات الحكومية", type: "منصة", url: "https://www.hukoomi.qa", desc: "بوابة حكومة دولة قطر الإلكترونية لإنجاز المعاملات الرسمية والحكومية." },
+            { title: "بوابة سلطنة عمان الرقمية", type: "منصة", url: "https://www.oman.om", desc: "النافذة الإلكترونية الموحدة للخدمات الحكومية والمعلومات في سلطنة عمان." },
+            { title: "منصة الأردن الرقمية", type: "منصة", url: "https://www.jordan.gov.jo", desc: "البوابة الرسمية للخدمات الحكومية الإلكترونية في المملكة الأردنية الهاشمية." },
+            { title: "منصة وزارة الداخلية الجزائرية", type: "منصة", url: "https://www.interieur.gov.dz", desc: "الموقع الرسمي لوزارة الداخلية والجماعات المحلية والتهيئة العمرانية في الجزائر." },
+            { title: "بوابة الوزارة الأولى في الجزائر", type: "منصة", url: "https://www.premier-ministre.gov.dz", desc: "المنصة الرسمية لمتابعة نشاط الحكومة والبيانات والقرارات الرسمية بالجزائر." },
+            { title: "منصة وزارة التعليم العالي والبحث العلمي الجزائرية", type: "منصة", url: "https://www.mesrs.dz", desc: "البوابة الرسمية للجامعات والخدمات الجامعية والتوجه الأكاديمي في الجزائر." },
+            { title: "منصة وزارة التربية الوطنية الجزائرية", type: "منصة", url: "https://www.education.gov.dz", desc: "الموقع الرسمي لوزارة التربية الوطنية لمتابعة المناهج والامتحانات والمسابقات." },
+            { title: "منصة الديوان الوطني للمسابقات والامتحانات", type: "منصة", url: "https://www.onec.dz", desc: "المنصة الرسمية لإعلان نتائج شهادات التعليم المتوسط، البكالوريا، والمسابقات الوطنية." },
+            { title: "منصة وكالة الأنباء الجزائرية", type: "منصة", url: "https://www.aps.dz", desc: "المنصة الرسمية لنشر الأخبار والمستجدات الوطنية والدولية بمصداقية." },
+            { title: "منصة التلفزيون الجزائري", type: "منصة", url: "https://www.entv.dz", desc: "البوابة الرسمية لمؤسسة البث التلفزيوني ومتابعة البرامج والبث المباشر." },
+            { title: "منصة سوناطراك", type: "منصة", url: "https://www.sonatrach.com", desc: "الموقع الرسمي لمؤسسة المحروقات والطاقة الوطنية في الجزائر." },
+            { title: "منصة الخطوط الجوية الجزائرية", type: "منصة", url: "https://www.airalgerie.dz", desc: "الموقع الرسمي لحجز التذاكر، معرفة مواعيد الرحلات، وإدارة السفر." },
+            { title: "منصة البريد الجزائري", type: "منصة", url: "https://www.poste.dz", desc: "المنصة الرسمية لمؤسسة بريد الجزائر لتتبع الخدمات المالية والبطاقات الذهبية." },
+            { title: "منصة مساق", type: "منصة", url: "https://www.misaq.net", desc: "منصة تعليمية عربية تقدم دورات ومساقات رقمية في مختلف مجالات المعرفة والتطوير." },
+            { title: "منصة زاد المعاد", type: "منصة", url: "https://www.zad-almead.com", desc: "منصة إسلامية لتقديم الدروس العلمية والفقهية المستمدة من هدي السيرة النبوية." },
+            { title: "منصة الباحث العلمي", type: "منصة", url: "https://scholar.google.com", desc: "منصة جوجل للبحث عن الأبحاث الأكاديمية، الرسائل العلمية، والكتب المحكمة." },
+            { title: "منصة أرينج", type: "منصة", url: "https://www.e-learning.dz", desc: "منصة التعليم عن بعد التابعة لوزارة التعليم العالي والبحث العلمي بالجزائر." },
+            { title: "منصة إنجاز التقنية", type: "منصة", url: "https://www.injaz-tech.com", desc: "منصة عربية لتقديم الحلول البرمجية وتطوير تطبيقات الويب والهواتف." },
+            { title: "منصة تلاوات", type: "منصة", url: "https://www.telawat.net", desc: "منصة متخصصة في جمع ونشر التلاوات القرآنية النادرة والمميزة لمختلف القراء." },
+            { title: "منصة رواق المعرفة", type: "منصة", url: "https://www.rwq-knowledge.com", desc: "منصة نشر ثقافي ومعرفي تقدم مقالات وكتباً في شتى العلوم الإنسانية." },
+            { title: "منصة صحافة الويب", type: "منصة", url: "https://www.web-journalism.com", desc: "منصة تدريبية لتعلم أساسيات الصحافة الرقمية وإنتاج المحتوى الإعلامي الحديث." },
+            { title: "منصة آفاق للترجمة", type: "منصة", url: "https://www.afaq-translation.com", desc: "منصة عربية متخصصة في خدمات الترجمة الأكاديمية والتقنية وتطوير المحتوى." },
+            { title: "منصة مرشد التقنية", type: "منصة", url: "https://www.morshed-tech.com", desc: "منصة تعليمية تقدم شروحاً تقنية ومقالات حول أمن المعلومات والبرمجة." },
+            { title: "منصة بيم أرابيا", type: "منصة", url: "https://www.bimarabia.com", desc: "منصة هندسية عربية متخصصة في نشر علوم هندسة البناء وتصميم النمذجة الرقمية." },
+            { title: "منصة هندسة نت", type: "منصة", url: "https://www.handasa.net", desc: "منصة هندسية تقدم مقالات، أدوات، ومصادر للمهندسين والمطورين في العالم العربي." },
+            { title: "منصة زاد الداعية", type: "منصة", url: "https://www.zad-aldaeia.com", desc: "منصة توجيهية وشرعية لتقديم الحقائب التدريبية والمواد الدعوية للمتخصصين." },
+            { title: "منصة بصيرة", type: "منصة", url: "https://www.baseera.org", desc: "منصة إسلامية تقديمية تعرض برامج ومرئيات علمية وثقافية موثوقة." },
+            { title: "منصة فكر", type: "منصة", url: "https://www.fikr.com", desc: "منصة ثقافية وفكرية تهدف لإثراء المحتوى العربي بنقاشات ومقالات عميقة." },
+            { title: "منصة جدارات", type: "منصة", url: "https://www.jadarat.sa", desc: "المنصة الوطنية الموحدة للتوظيف في القطاع الحكومي والخدمة المدنية." },
+            { title: "منصة استثمار السعودية", type: "منصة", url: "https://www.investsaudi.sa", desc: "منصة تعريفية بالفرص الاستثمارية والمقومات الاقتصادية والتجارية." },
+            { title: "منصة صحتك تهمنا", type: "منصة", url: "https://www.sehatak.net", desc: "منصة طبية توعوية لنشر المقالات الصحية والنصائح العلاجية الموثوقة." },
+            { title: "منصة ريادة الأعمال", type: "منصة", url: "https://www.riyadah.com.sa", desc: "منصة لدعم وتدريب وتمويل المشاريع الناشئة وصغار المستثمرين." },
+            { title: "منصة مساق التقنية", type: "منصة", url: "https://www.misaq-tech.com", desc: "منصة لتقديم الدورات البرمجية المتخصصة في أمن المعلومات وتطوير الويب." },
+            { title: "Alislamiah Search Console", type: "منصة", url: "https://mohamedmadoui5195.github.io/Alislamiah-search-console/", desc: "لوحة تحكم البحث الخاصة بشبكة الإسلامية." },
+            { title: "Alislamiah Services", type: "منصة", url: "https://mohamedmadoui5195.github.io/Alislamiah-services/", desc: "خدمات شبكة الإسلامية المتنوعة." },
+            { title: "Alislamiah Net", type: "منصة", url: "https://mohamedmadoui5195.github.io/Alislamiah-_net/", desc: "المنصة الرسمية لشبكة الإسلامية." }
+        ];
+
+        // ===================== الوظائف =====================
+        function getFavicon(url) {
+            try {
+                const domain = new URL(url).hostname;
+                return `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
+            } catch (e) {
+                return 'https://www.google.com/favicon.ico';
+            }
+        }
+
+        function getAIResponse(query) {
+            const q = query.toLowerCase();
+            if (q.includes('الإسلامية') || q.includes('alislamiah')) {
+                return `تعتبر منصة <strong>الإسلامية</strong> شبكة رقمية متكاملة تقدم خدمات متنوعة تشمل المنصات التعليمية، المتاجر الرقمية، ومساعد الذكاء الاصطناعي لتسهيل الوصول للمحتوى الهادف.`;
+            } else if (q.includes('متجر')) {
+                return `موقع <strong>متجر الإسلامية</strong> يوفر لك أحدث التطبيقات والمنصات الرقمية الخاصة بشبكة الإسلامية للتحميل والاستخدام المباشر.`;
+            } else if (q.includes('أحمد النفيس') || q.includes('النفيس')) {
+                return `تعتبر <strong>قناة الشيخ أحمد النفيس</strong> منارة قرآنية مباركة تقدم تلاوات عطرة، خاشعة، ومؤثرة لآي الذكر الحكيم.`;
+            } else if (q.includes('فركوس')) {
+                return `<strong>قناة الشيخ فركوس</strong> هي القناة الرسمية لفضيلة الشيخ الدكتور محمد علي فركوس، وتضم العديد من الخطب والدروس العلمية القيمة.`;
+            } else if (q.includes('أبشر') || q.includes('absher')) {
+                return `منصة <strong>أبشر</strong> هي المنصة الإلكترونية الرسمية للخدمات الحكومية للأفراد والقطاع التجاري في السعودية.`;
+            } else if (q.includes('ناجز')) {
+                return `منصة <strong>ناجز</strong> بوابة الخدمات العدلية والقضائية الإلكترونية لوزارة العدل السعودية.`;
+            } else if (q.includes('الجزائر') || q.includes('أولياء')) {
+                return `يمكنك متابعة النتائج والمستويات الدراسية عبر المنصات الرسمية المعتمدة في الجزائر مثل <strong>فضاء الأولياء</strong>.`;
+            } else {
+                return `بناءً على بحثك عن "<strong>${query}</strong>"، تم عرض النتائج المطابقة من قاعدة بيانات شبكة الإسلامية.`;
+            }
+        }
+
+        function renderResults(query) {
+            const resultsList = document.getElementById('resultsList');
+            const aiBox = document.getElementById('aiBox');
+            const aiText = document.getElementById('aiText');
+
+            if (!query) {
+                aiBox.classList.remove('show');
+                resultsList.innerHTML = `
+                    <div class="no-results">
+                        <div class="icon">🔍</div>
+                        <p>اكتب كلمة للبحث في قاعدة بيانات الإسلامية</p>
+                    </div>`;
+                return;
+            }
+
+            aiBox.classList.add('show');
+            aiText.innerHTML = getAIResponse(query);
+
+            const q = query.toLowerCase().trim();
+            const filtered = library.filter(item =>
+                (item.title || '').toLowerCase().includes(q) ||
+                (item.desc || '').toLowerCase().includes(q) ||
+                (item.url || '').toLowerCase().includes(q)
+            );
+
+            if (filtered.length === 0) {
+                resultsList.innerHTML = `
+                    <div class="no-results">
+                        <div class="icon">📭</div>
+                        <p>عذراً، لم نتمكن من العثور على نتائج مطابقة لـ "<strong>${query}</strong>"</p>
+                    </div>`;
+                return;
+            }
+
+            resultsList.innerHTML = filtered.map(item => {
+                if (item.type === 'video' && item.thumbnail) {
+                    return `
+                    <div class="result-card video-card" onclick="openSite('${item.url}')">
+                        <div class="video-thumb">
+                            <img src="${item.thumbnail}" alt="" loading="lazy">
+                            <span class="video-duration">${item.duration || ''}</span>
+                            <div class="video-play">▶</div>
+                        </div>
+                        <div class="result-body">
+                            <div class="result-meta">
+                                <span class="result-type">فيديو</span>
+                            </div>
+                            <div class="result-title">${item.title}</div>
+                            <div class="result-desc">${item.desc}</div>
+                        </div>
+                    </div>`;
+                }
+                return `
+                <div class="result-card" onclick="openSite('${item.url}')">
+                    <img class="favicon" src="${getFavicon(item.url)}" alt="" onerror="this.src='https://www.google.com/favicon.ico'" loading="lazy">
+                    <div class="result-body">
+                        <div class="result-meta">
+                            <span class="result-type">${item.type || 'موقع'}</span>
+                            <span class="result-url">${item.url.replace(/^https?:\/\//, '')}</span>
+                        </div>
+                        <div class="result-title">${item.title}</div>
+                        <div class="result-desc">${item.desc}</div>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function doSearch(e) {
+            e.preventDefault();
+            const q = document.getElementById('searchInput').value.trim();
+            if (!q) return;
+            // إخفاء الإطار وإظهار النتائج
+            closeFrame();
+            const url = new URL(window.location);
+            url.searchParams.set('q', q);
+            history.replaceState(null, '', url);
+            renderResults(q);
+        }
+
+        function openSite(url) {
+            const wrap = document.getElementById('site-frame-wrap');
+            const frame = document.getElementById('site-frame');
+            const loading = document.getElementById('frameLoading');
+            const main = document.getElementById('main-content');
+
+            main.classList.add('hidden');
+            wrap.classList.add('active');
+            loading.style.display = 'flex';
+            frame.src = url;
+
+            frame.onload = () => {
+                loading.style.display = 'none';
+            };
+            // في حال فشل التحميل داخل iframe (X-Frame-Options)
+            setTimeout(() => {
+                if (loading.style.display !== 'none') {
+                    // فتح في نافذة جديدة كبديل
+                    loading.innerHTML = 'الموقع يمنع العرض داخل الإطار. جاري الفتح في نافذة جديدة...';
+                    setTimeout(() => {
+                        window.open(url, '_blank');
+                        closeFrame();
+                    }, 800);
+                }
+            }, 4000);
+        }
+
+        function closeFrame() {
+            const wrap = document.getElementById('site-frame-wrap');
+            const frame = document.getElementById('site-frame');
+            const main = document.getElementById('main-content');
+            wrap.classList.remove('active');
+            frame.src = 'about:blank';
+            main.classList.remove('hidden');
+            document.getElementById('frameLoading').style.display = 'flex';
+            document.getElementById('frameLoading').innerHTML = 'جاري التحميل...';
+        }
+
+        function goBack() {
+            const wrap = document.getElementById('site-frame-wrap');
+            if (wrap.classList.contains('active')) {
+                closeFrame();
+            } else {
+                if (history.length > 1) history.back();
+                else goHome();
+            }
+        }
+
+        function goHome() {
+            window.location.href = 'index.html';
+        }
+
+        // عند التحميل
+        document.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const q = params.get('q') || '';
+            document.getElementById('searchInput').value = q;
+            renderResults(q);
+        });
+    </script>
+</body>
+</html>
