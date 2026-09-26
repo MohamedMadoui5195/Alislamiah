@@ -389,7 +389,7 @@
             <div class="nav-icon">🔍</div>
             <span>بحث</span>
         </a>
-        <a href="https://google.gemini.com" class="nav-item">
+        <a href="https://gemini.google.com" class="nav-item">
             <div class="nav-icon">
                 <div class="gemini-logo">G</div>
             </div>
